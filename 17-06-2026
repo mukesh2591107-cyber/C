@@ -1,0 +1,80 @@
+//student record management 
+#include<stdio.h>
+        
+        struct student
+    {
+        int roll;
+        char name[50];
+        float marks;
+    };
+   int main()
+   {
+      struct student s;
+      FILE *m;
+      m=fopen("students.txt","w");
+      for(int i=0;i<5;i++)
+      {
+          printf("enter roll:");
+          scanf("%d",&s.roll);
+          printf("enter name:");
+          scanf("%s",&s.name);
+          printf("enter marks:");
+          scanf("%f",&s.marks);
+          fwrite(&s,sizeof(struct student),1,m);
+          
+      }
+      fclose(m);
+      
+      m=fopen("students.txt","r");
+      printf("students details");
+      
+   } 
+//count chars,words,lines
+ #include <stdio.h>
+
+ 
+    int main()
+{
+    FILE *fp;
+    char ch;
+    int n=0, words=0, lines=0;
+    fp = fopen("text.txt","r");
+    while((ch=fgetc(fp))!=EOF)
+    {
+        n++;
+        if(ch==' ' || ch=='\n' || ch=='\t')
+            words++;
+        if(ch=='\n')
+            lines++;
+    }
+    printf("Characters = %d\n", n);
+    printf("Words = %d\n", words+1);
+    printf("Lines = %d\n", lines+1);
+    fclose(fp);
+    return 0;
+} 
+//file transfer from src to dest
+#include <stdio.h>
+
+int main()
+{ 
+    FILE *src,*dest;
+    char ch;
+
+    dest=fopen("destination.txt","w");
+    src=fopen("source.txt","r");
+
+    while((ch=fgetc(src))!=EOF)
+    {
+        fputc(ch,dest);
+    }
+
+    fclose(src);
+    fclose(dest);
+
+    printf("File copied successfully");
+
+    return 0;
+}
+
+   
