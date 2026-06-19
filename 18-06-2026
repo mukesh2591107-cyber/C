@@ -1,0 +1,137 @@
+#include<stdio.h>
+        
+        struct student
+        {
+        int roll;
+        char name[50];
+        float marks;
+    };
+   int main()
+   {
+      struct student s;
+      FILE *m;
+      m=fopen("students.txt","w");
+      for(int i=0;i<5;i++)
+      {
+          printf("enter roll:");
+          scanf("%d",&s.roll);
+          printf("enter name:");
+          scanf("%s",&s.name);
+          printf("enter marks:");
+          scanf("%f",&s.marks);
+          fwrite(&s,sizeof(struct student),1,m);
+          
+      }
+      fclose(m);
+      
+      m=fopen("students.txt","r");
+      printf("students details");
+   }
+
+
+#include <stdio.h>
+
+ 
+    int main()
+{
+    FILE *fp;
+    char ch;
+    int n=0, words=0, lines=0;
+    fp = fopen("text.txt","r");
+    while((ch=fgetc(fp))!=EOF)
+    {
+        n++;
+        if(ch==' ' || ch=='\n' || ch=='\t')
+        words++;
+        if(ch=='\n')
+        lines++;
+    }
+    printf("Characters = %d\n", n);
+    printf("Words = %d\n", words+1);
+    printf("Lines = %d\n", lines+1);
+    fclose(fp);
+    return 0;
+}
+
+  #include <stdio.h>
+
+int main()
+{ 
+    FILE *src,*dest;
+    char ch;
+
+    dest=fopen("destination.txt","w");
+    src=fopen("source.txt","r");
+
+    while((ch=fgetc(src))!=EOF)
+    {
+        fputc(ch,dest);
+    }
+
+    fclose(src);
+    fclose(dest);
+
+    printf("File copied successfully");
+
+    return 0;
+}
+
+#include <stdio.h>
+
+
+struct employee 
+{
+    int id;
+    char name[30];
+    float salary;
+};
+int main() 
+{
+    struct employee e[3];
+    FILE *m;
+    m = fopen("emp.txt", "w");
+    for(int i = 0; i < 3; i++) 
+    {
+        printf("enter id:\n");
+        printf("enter name:\n");
+        printf("enter salary:");
+        scanf("%d", &e[i].id);
+        scanf("%s", &e[i].name);
+        scanf("%f", &e[i].salary);
+        fwrite(&e[i], sizeof(struct employee), 1, m);
+    }
+    fclose(m);
+
+    m = fopen("emp.txt", "r");
+    printf("employee records:\n");
+    while(fread(&e[0], sizeof(struct employee), 1, m)) 
+    {
+        printf("id: %d",e[0].id);
+        printf("name: %s",e[0].name);
+        printf("salary: %f",e[0].salary);
+    }
+    fclose(m);
+    return 0;
+}
+
+#include <stdio.h>
+#include <string.h>
+int main()
+{
+    FILE *m;
+    char word[50], new[50];
+    int count = 0;
+    m = fopen("data.txt", "r");
+    printf("Enter word to search: ");
+    scanf("%s", word);
+
+    while(fscanf(m, "%s", new)!= EOF)
+    {
+        if(strcmp(new, word) == 0) 
+        count++;
+    }
+    printf("%s found", word);
+    printf("%d times",count);
+    fclose(m);
+    return 0;
+}
