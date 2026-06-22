@@ -74,8 +74,8 @@ void main()
     }
     return;
 }
-#include <xc.h>
 
+#include <xc.h>
 
 // CONFIG
 #pragma config FOSC = HS        // Oscillator Selection bits (HS oscillator)
@@ -130,8 +130,17 @@ void main()
         RB4=1;
         RB5=0;
         RB6=0;
-        __delay_ms(1000);   
-       }   
+        __delay_ms(1000);
+        
+       }
+       if(RB2=1){
+        RB1=0;
+        RB3=0;
+        RB4=0;
+        RB5=1;
+        RB6=0;
+        __delay_ms(1000);
+        }
     }
     return;
 }
