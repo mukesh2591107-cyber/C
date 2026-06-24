@@ -1,6 +1,5 @@
-  
- 
-#define _XTAL_FREQ 20000000UL 
+
+/*#define _XTAL_FREQ 20000000UL 
 
 #include <xc.h>
 #include<stdio.h>
@@ -32,29 +31,33 @@ unsigned int ADC_STR(unsigned char k)
     
     void UART_Init(void)
 {
-    TRISC6 = 1;      
-    TRISC7 = 1;      
+    TRISC6 = 1;      // TX pin
+    TRISC7 = 1;      // RX pin
 
-    SPBRG = 129;     
+    SPBRG = 129;     // 9600 baud @ 20MHz
 
-    BRGH = 1;        
-    SYNC = 0;        
-    SPEN = 1;        
+    BRGH = 1;        // High speed
+    SYNC = 0;        // Async mode
+    SPEN = 1;        // Enable serial port
 
-    TXEN = 1;        
-    CREN = 1;        
+    TXEN = 1;        // Enable transmitter
+    CREN = 1;        // Enable receiver
 }
 
-
-void UART_SendChar(char c)
+/*------------------------------------------------------------------
+ Send One Character
+------------------------------------------------------------------*/
+/*void UART_SendChar(char c)
 {
     while(TXIF == 0);
 
     TXREG = c;
 }
 
-
-void UART_SendString(const char *s)
+/*------------------------------------------------------------------
+ Send String
+------------------------------------------------------------------*/
+/*void UART_SendString(const char *s)
 {
     while(*s)
     {
@@ -86,7 +89,7 @@ void UART_SendString(const char *s)
 
         __delay_ms(500);
     }
-}
+}*/
   
 
  
@@ -95,74 +98,82 @@ void UART_SendString(const char *s)
 #include <xc.h>
 #include <stdio.h>
 
-
+// Function Prototypes
 void adc(void);
 unsigned int ADC_STR(unsigned char k);
 void UART_Init(void);
 void UART_SendChar(char c);
 void UART_SendString(const char *s);
 
-
+// Initialize ADC Peripheral
 void adc(void)
 { 
-    TRISA3 = 1;        
-    ADCON1 = 0x8E;     
-    ADCON0 = 0x81;     
+    TRISA3 = 1;        // Set RA3 as input
+    ADCON1 = 0x8E;     // Configure VREF and port pins
+    ADCON0 = 0x81;     // Turn on ADC module, select clock Fosc/32
 }
 
-
+// Read Analog Channel
 unsigned int ADC_STR(unsigned char k)
 {
     unsigned int output;
     
-    
+    // Clear channel selection bits and set new channel 'k'
     ADCON0 &= 0xC5;
     ADCON0 |= (k << 3); 
     
-    __delay_us(20);    
-    GO_DONE = 1;       
+    __delay_us(20);    // Acquisition time delay
+    GO_DONE = 1;       // Start conversion
     
-    while(GO_DONE);    
+    while(GO_DONE);    // Wait for conversion to complete
     
-    output = ((unsigned int)ADRESH << 8) | ADRESL; 
+    output = ((unsigned int)ADRESH << 8) | ADRESL; // Combine 10-bit result
     return output;
 }
 
-
+// Initialize UART Peripheral
 void UART_Init(void)
 {
-    TRISC6 = 1;      
-    TRISC7 = 1;      
+    TRISC6 = 1;      // TX pin
+    TRISC7 = 1;      // RX pin
 
-    SPBRG = 129;     
+    SPBRG = 129;     // 9600 baud @ 20MHz
 
-    BRGH = 1;        
-    SYNC = 0;        
-    SPEN = 1;        
-    TXEN = 1;        
-    CREN = 1;        
+    BRGH = 1;        // High speed
+    SYNC = 0;        // Async mode
+    SPEN = 1;        // Enable serial port
+
+    TXEN = 1;        // Enable transmitter
+    CREN = 1;        // Enable receiver
 }
 
-
+/*------------------------------------------------------------------
+ Send One Character
+------------------------------------------------------------------*/
 void UART_SendChar(char c)
 {
-    while(TXIF == 0); 
+    while(TXIF == 0); // Wait for transmit buffer to be empty
     TXREG = c;
 }
 
+/*------------------------------------------------------------------
+ Send String
+------------------------------------------------------------------*/
 void UART_SendString(const char *s)
 {
     while(*s)
     {
         UART_SendChar(*s++);
     }
-} 
+}
+    
+// Main Application
 void main(void)
 {
     unsigned int adcValue;
     char uartBuffer[20];
     
-   
+    // Call the proper initialization functions
     UART_Init();
     adc();
     
@@ -170,12 +181,12 @@ void main(void)
     
     while(1)
     {
-        adcValue = ADC_STR(0);
+        adcValue = ADC_STR(0); // Read channel 0
 
         sprintf(uartBuffer, "ADC Value = %u\r\n", adcValue);
 
         UART_SendString(uartBuffer);
 
-        __delay_ms(500) ;
-        }
+        __delay_ms(500); // Wait half a second before next reading
+    }
 }
