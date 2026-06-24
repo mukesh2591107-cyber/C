@@ -1,0 +1,181 @@
+  
+ 
+#define _XTAL_FREQ 20000000UL 
+
+#include <xc.h>
+#include<stdio.h>
+
+void adc(void);
+unsigned int ADC_STR(unsigned char k);
+
+void adc(void)
+{ 
+    TRISA3=1;
+    ADCON1=0x8E;
+    ADCON0=0x81;
+    
+    
+}
+unsigned int ADC_STR(unsigned char k)
+{
+    unsigned int output;
+    ADCON0 &=0xC5;
+    ADCON1 |=(k<<3);
+    __delay_us(20);
+    GO_DONE=1;
+    
+    while(GO_DONE);
+    {
+        output =((unsigned int)ADRESH<<8)|ADRESL;
+        return output;
+    }
+    
+    void UART_Init(void)
+{
+    TRISC6 = 1;      
+    TRISC7 = 1;      
+
+    SPBRG = 129;     
+
+    BRGH = 1;        
+    SYNC = 0;        
+    SPEN = 1;        
+
+    TXEN = 1;        
+    CREN = 1;        
+}
+
+
+void UART_SendChar(char c)
+{
+    while(TXIF == 0);
+
+    TXREG = c;
+}
+
+
+void UART_SendString(const char *s)
+{
+    while(*s)
+    {
+        UART_SendChar(*s++);
+    }
+}
+    
+    void main(void)
+    {
+        unsigned int adcvalue;
+        char uartbuffer[20];
+        
+        uartbuffer();
+        adcvalue();
+        
+        uart__SendString("\r\nADC Started\r\n");
+    } 
+    
+    
+    
+
+    while(1)
+    {
+        adcValue = ADC_STR(0);
+
+        sprintf(uartbuffer,"ADC Value = %u\r\n",adcValue);
+
+        uart_SendString(uartBuffer);
+
+        __delay_ms(500);
+    }
+}
+  
+
+ 
+#define _XTAL_FREQ 20000000UL 
+
+#include <xc.h>
+#include <stdio.h>
+
+
+void adc(void);
+unsigned int ADC_STR(unsigned char k);
+void UART_Init(void);
+void UART_SendChar(char c);
+void UART_SendString(const char *s);
+
+
+void adc(void)
+{ 
+    TRISA3 = 1;        
+    ADCON1 = 0x8E;     
+    ADCON0 = 0x81;     
+}
+
+
+unsigned int ADC_STR(unsigned char k)
+{
+    unsigned int output;
+    
+    
+    ADCON0 &= 0xC5;
+    ADCON0 |= (k << 3); 
+    
+    __delay_us(20);    
+    GO_DONE = 1;       
+    
+    while(GO_DONE);    
+    
+    output = ((unsigned int)ADRESH << 8) | ADRESL; 
+    return output;
+}
+
+
+void UART_Init(void)
+{
+    TRISC6 = 1;      
+    TRISC7 = 1;      
+
+    SPBRG = 129;     
+
+    BRGH = 1;        
+    SYNC = 0;        
+    SPEN = 1;        
+    TXEN = 1;        
+    CREN = 1;        
+}
+
+
+void UART_SendChar(char c)
+{
+    while(TXIF == 0); 
+    TXREG = c;
+}
+
+void UART_SendString(const char *s)
+{
+    while(*s)
+    {
+        UART_SendChar(*s++);
+    }
+} 
+void main(void)
+{
+    unsigned int adcValue;
+    char uartBuffer[20];
+    
+   
+    UART_Init();
+    adc();
+    
+    UART_SendString("\r\nADC Started\r\n");
+    
+    while(1)
+    {
+        adcValue = ADC_STR(0);
+
+        sprintf(uartBuffer, "ADC Value = %u\r\n", adcValue);
+
+        UART_SendString(uartBuffer);
+
+        __delay_ms(500) ;
+        }
+}
