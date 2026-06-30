@@ -1,0 +1,62 @@
+#include <xc.h>
+
+#pragma config FOSC = HS
+#pragma config WDTE = OFF
+#pragma config PWRTE = OFF
+#pragma config BOREN = ON
+#pragma config LVP = OFF
+
+#define _XTAL_FREQ 20000000
+
+void UART_Init(void) {
+    TRISC6 = 0;
+    TRISC7 = 1;
+    SPBRG = 129;
+    BRGH = 1;
+    SYNC = 0;
+    SPEN = 1;
+    TXEN = 1;
+}
+
+void UART_Write(char data) {
+    while (!TRMT);
+    TXREG = data;
+}
+
+void UART_Write_Number(int num) {
+    if (num >= 10) {
+        UART_Write((char)((num / 10) + '0'));
+    }
+    UART_Write((char)((num % 10) + '0'));
+    UART_Write(' ');
+}
+
+void main(void) {
+    UART_Init();
+
+    int primes[10];
+    int count = 0;
+    int num = 2;
+
+    while (count < 10) {
+        int isPrime = 1;
+
+        for (int i = 2; i <= num / 2; i++) {
+            if (num % i == 0) {
+                isPrime = 0;
+                break;
+            }
+        }
+
+        if (isPrime) {
+            primes[count] = num;
+            UART_Write_Number(num);
+            count++;
+        }
+
+        num++;
+    }
+
+    while (1) {
+    }
+}
