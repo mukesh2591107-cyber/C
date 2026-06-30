@@ -1,0 +1,130 @@
+#include <xc.h>
+
+#define _XTAL_FREQ 20000000UL
+
+#pragma config WDTE = OFF
+#pragma config PWRTE = ON
+#pragma config BOREN = ON
+#pragma config LVP = OFF
+
+unsigned int adc0 = 1023;
+unsigned int adc1 = 1023;
+unsigned int adc2 = 1023;
+
+void ADC_Init(void)
+{
+    TRISA0 = 1; 
+    TRISA1 = 1; 
+    TRISA2 = 1; 
+
+    ADCON1 = 0x80; 
+    ADCON0 = 0x81; 
+}
+
+unsigned int ADC_Read(unsigned char channel)
+{
+    ADCON0 &= 0xC7;          
+    ADCON0 |= (channel << 3); 
+
+    __delay_us(20);          
+
+    GO_DONE = 1;             
+    while(GO_DONE);          
+
+    return ((unsigned int)ADRESH << 8) | ADRESL; 
+}
+
+void Timer0_Init(void)
+{
+    OPTION_REG &= 0xC0; 
+    OPTION_REG |= 0x07; 
+
+    TMR0 = 178;          
+
+    T0IE = 1;           
+    GIE = 1;            
+}
+
+void LED_Init(void)
+{
+    TRISB0 = 0; 
+    TRISB1 = 0;
+
+    RB0 = 0;    
+    RB1 = 0;
+}
+
+unsigned char Check_Condition(unsigned int a0, unsigned int a1, unsigned int a2)
+{
+    unsigned char count = 0;
+
+    if(a0 < 512) count++; 
+    if(a1 < 512) count++;
+    if(a2 < 512) count++;
+
+    if(count == 3)
+        return 2; 
+    else if(count >= 1)
+        return 1; 
+    else
+        return 0;
+}
+
+void __interrupt() my_isr(void)
+{
+    if (T0IF) 
+    {
+        adc0 = ADC_Read(0);
+        adc1 = ADC_Read(1);
+        adc2 = ADC_Read(2);
+
+        TMR0 = 178;     
+        T0IF = 0;      
+    }
+}
+
+void main(void)
+{
+    unsigned char status;
+    unsigned char i;
+
+    ADC_Init();
+    Timer0_Init(); 
+    LED_Init();
+
+    while(1)
+    {
+        status = Check_Condition(adc0, adc1, adc2);
+
+        if(status == 1)
+        {
+            for(i = 0; i < 10; i++)
+            {
+                RB0 = 1;
+                RB1 = 0;
+                __delay_ms(250);
+
+                RB0 = 0;
+                __delay_ms(250);
+            }
+        }
+        else if(status == 2)
+        {
+            for(i = 0; i < 10; i++)
+            {
+                RB1 = 1;
+                RB0 = 0;
+                __delay_ms(250);
+
+                RB1 = 0;
+                __delay_ms(250);
+            }
+        }
+        else
+        {
+            RB0 = 0;
+            RB1 = 0;
+            __delay_ms(1000); 
+        }
+    }
+}
