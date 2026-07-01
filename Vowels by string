@@ -1,0 +1,89 @@
+#include <xc.h>
+#include <string.h>
+
+#pragma config FOSC = HS
+#pragma config WDTE = OFF
+#pragma config PWRTE = OFF
+#pragma config BOREN = ON
+#pragma config LVP = OFF
+#pragma config CPD = OFF
+#pragma config WRT = OFF
+#pragma config CP = OFF
+
+#define _XTAL_FREQ 20000000
+
+void UART_Init()
+{
+    TRISC6 = 0;
+    TRISC7 = 1;
+
+    SPBRG = 129;      
+    BRGH = 1;
+    SYNC = 0;
+    SPEN = 1;
+    TXEN = 1;
+    CREN = 1;
+}
+
+void UART_Write(char ch)
+{
+    while(!TRMT);
+    TXREG = ch;
+}
+
+void UART_Write_Text(char *str)
+{
+    while(*str)
+    {
+        UART_Write(*str++);
+    }
+}
+
+char UART_Read()
+{
+    while(!RCIF);
+    return RCREG;
+}
+
+void main()
+{
+    char str[20];
+    int i, len, count = 0;
+    char ch;
+
+    UART_Init();
+
+    UART_Write_Text("Enter a word: ");
+
+    i = 0;
+
+    while(1)
+    {
+        ch = UART_Read();
+
+        if(ch == 13)      
+            break;
+
+        str[i] = ch;
+        UART_Write(ch);   
+        i++;
+    }
+
+    str[i] = '\0';
+
+    len = strlen(str);
+
+    for(i = 0; i < len; i++)
+    {
+        if(str[i]=='A' || str[i]=='E' || str[i]=='I' || str[i]=='O' || str[i]=='U' ||
+           str[i]=='a' || str[i]=='e' || str[i]=='i' || str[i]=='o' || str[i]=='u')
+        {
+            count++;
+        }
+    }
+
+    UART_Write_Text("\r\n");
+    UART_Write(count + '0');
+
+    while(1);
+}
